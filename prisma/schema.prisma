@@ -12,3 +12,80 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+//admin model
+model Admin {
+  id       String @id @default(cuid())
+  email    String
+  password String
+}
+
+// custom model
+model Customer {
+  id          String  @id @default(cuid())
+  email       String
+  fastName    String
+  lastName    String
+  address     String
+  password    String
+  phoneNumber String
+  cart        Cart?
+  orders      Order[]
+}
+
+// product model
+model Product {
+  id          String   @id @default(cuid())
+  quantity    Int
+  description String
+  category    Category @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  orders      Order[]
+}
+
+// category model
+model Category {
+  id      String    @id @default(cuid())
+  name    String
+  Product Product[]
+}
+
+// cart Model
+model Cart {
+  id         String   @id @default(cuid())
+  products   Json[]
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId String   @unique
+}
+
+// order model
+model Order {
+  id         String      @id @default(cuid())
+  quantity   Int
+  status     orderStatus @default(pending)
+  address    String
+  Customer   Customer?   @relation(fields: [customerId], references: [id])
+  customerId String?
+  products   Product[]
+}
+
+// payment model
+model Payment {
+  ref           String @id
+  paymentStatus String
+}
+
+// courier model
+model Courier {
+  id        String @id @default(cuid())
+  firstName String
+  lastName  String
+}
+
+enum orderStatus {
+  pending
+  processing
+  onRoute
+  delivered
+  cancelled
+}
