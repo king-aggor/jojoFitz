@@ -131,3 +131,39 @@ export const login = async (loginData: {
     throw new CustomError(err.message, err.statusCode);
   }
 };
+
+// token validation
+export const token = async (token: string) => {
+  try {
+    //check if token exist
+    if (!token) {
+      throw new CustomError(
+        "No token found: Assign token to authorization in request headers",
+        401
+      );
+    }
+    //check if token is of type string
+    if (typeof token !== "string") {
+      throw new CustomError("invalid token: token must be of type string", 400);
+    }
+  } catch (err: any) {
+    throw new CustomError(err.message, err.statusCode);
+  }
+};
+
+//category validation
+export const category = async (categoryData: { name: string }) => {
+  const { name } = categoryData;
+  try {
+    //check if name exist
+    if (!name) {
+      throw new CustomError("name must be exist in request body", 401);
+    }
+    //check if name is of type string
+    if (typeof name !== "string") {
+      throw new CustomError("name must be of type string", 400);
+    }
+  } catch (err: any) {
+    throw new CustomError(err.message, err.statusCode);
+  }
+};

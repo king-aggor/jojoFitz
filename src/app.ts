@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 
 import authenticationRoute from "./routes/authentication";
+import adminRoute from "./routes/admin";
 
 //for env file
 dotenv.config();
@@ -18,6 +19,7 @@ app.use(express.json());
 
 // middleware to use routes
 app.use("/auth", authenticationRoute);
+app.use("/admin", adminRoute);
 
 app.get("/", (req: Request, res: Response) => {
   res.status(200).json({ message: "Welcome to JojoFitz" });

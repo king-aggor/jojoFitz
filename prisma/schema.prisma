@@ -37,6 +37,7 @@ model Customer {
 // product model
 model Product {
   id          String   @id @default(cuid())
+  name        String
   quantity    Int
   description String
   category    Category @relation(fields: [categoryId], references: [id])
