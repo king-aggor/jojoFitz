@@ -57,11 +57,11 @@ export const createCustomer = async (customerData: {
     }
     //check if all customer are of type string
     if (
-      typeof email !== "string" &&
-      typeof firstName !== "string" &&
-      typeof lastName !== "string" &&
-      typeof address !== "string" &&
-      typeof password !== "string" &&
+      typeof email !== "string" ||
+      typeof firstName !== "string" ||
+      typeof lastName !== "string" ||
+      typeof address !== "string" ||
+      typeof password !== "string" ||
       typeof phoneNumber !== "string"
     ) {
       throw new CustomError(
@@ -116,7 +116,7 @@ export const login = async (loginData: {
       );
     }
     //check if passowrd and email are of type string
-    if (typeof email !== "string" && typeof password !== "string") {
+    if (typeof email !== "string" || typeof password !== "string") {
       throw new CustomError("email and password must be of type string", 422);
     }
     // check if email is valid email address
@@ -162,6 +162,26 @@ export const category = async (categoryData: { name: string }) => {
     //check if name is of type string
     if (typeof name !== "string") {
       throw new CustomError("name must be of type string", 400);
+    }
+  } catch (err: any) {
+    throw new CustomError(err.message, err.statusCode);
+  }
+};
+
+//updateCategory validation
+export const updatedCategory = async (updateCategoryData: {
+  id: string;
+  name: string;
+}) => {
+  const { id, name } = updateCategoryData;
+  try {
+    //check if id and name exist
+    if (!id || !name) {
+      throw new CustomError("id and name must be exist in request body", 401);
+    }
+    //check if id and name is of type string
+    if (typeof id !== "string" || typeof name !== "string") {
+      throw new CustomError("id and name must be of type string", 400);
     }
   } catch (err: any) {
     throw new CustomError(err.message, err.statusCode);

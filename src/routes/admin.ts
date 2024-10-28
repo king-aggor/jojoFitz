@@ -5,6 +5,8 @@ const router = Router();
 
 //Post addCategory
 router.post("/category", adminController.addCategory);
+//Patch category
+router.patch("/category", adminController.updateCategory);
 // Post addProduct
 router.post("/product", adminController.addProduct);
 

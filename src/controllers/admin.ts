@@ -28,6 +28,33 @@ export const addCategory = async (
   }
 };
 
+//update category
+export const updateCategory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authToken: string = req.headers.authorization as string;
+  const updatedCategoryData: { id: string; name: string } = req.body;
+  try {
+    await datavalidation.token(authToken);
+    await authorization.admin(authToken);
+    await datavalidation.updatedCategory(updatedCategoryData);
+    const updatedCategory = await adminService.updateCategory(
+      updatedCategoryData
+    );
+    res.status(200).json({
+      message: "Category updated successfully",
+      updatedCategory,
+    });
+  } catch (err: any) {
+    next({
+      status: err.status,
+      message: err.message,
+    });
+  }
+};
+
 //add product
 export const addProduct = async (
   req: Request,
