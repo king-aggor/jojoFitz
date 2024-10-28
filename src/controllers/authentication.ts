@@ -63,6 +63,7 @@ export const createAccount = async (
         lastName: customer.lastName,
         address: customer.address,
         email: customer.email,
+        cart: customer.cart,
         user,
         token,
       };

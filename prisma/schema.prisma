@@ -29,7 +29,8 @@ model Customer {
   address     String
   password    String
   phoneNumber String
-  cart        Cart?
+  cart        Cart?   @relation()
+  cartId      String? @unique
   orders      Order[]
 }
 

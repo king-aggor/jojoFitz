@@ -1,6 +1,7 @@
 import prisma from "../util/prisma";
 import CustomError from "../util/error";
 import * as bcrypt from "../util/bcrypt";
+import { json } from "express";
 
 //create admin
 export const createAdmin = async (adminData: {
@@ -57,6 +58,12 @@ export const createCustomer = async (customerData: {
         address,
         phoneNumber,
         password: hashedPassword,
+        cart: {
+          create: {},
+        },
+      },
+      include: {
+        cart: true,
       },
     });
     return customer;
