@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import CustomError from "./error";
 
 //hash password
-export const hassPassword = async (password: string) => {
+export const hashPassword = async (password: string) => {
   const saltRounds = 10;
   try {
     const salt = await bcrypt.genSaltSync(saltRounds);

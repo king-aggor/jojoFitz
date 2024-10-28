@@ -16,7 +16,7 @@ export const createAdmin = async (adminData: {
       throw new CustomError("There is an exixsting admin account", 409);
     }
     //if there is no admin account
-    const hashedPassword: string = await bcrypt.hassPassword(password);
+    const hashedPassword: string = await bcrypt.hashPassword(password);
     const admin = await prisma.admin.create({
       data: {
         email,
@@ -49,7 +49,7 @@ export const createCustomer = async (customerData: {
       throw new CustomError(`Customer with ${email} already exist`, 409);
     }
     //if email doesn exist
-    const hashedPassword = await bcrypt.hassPassword(password);
+    const hashedPassword = await bcrypt.hashPassword(password);
     const customer = await prisma.customer.create({
       data: {
         email,
