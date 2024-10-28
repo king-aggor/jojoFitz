@@ -12,7 +12,7 @@ export const createAdmin = async (adminData: {
     if (!email && !password) {
       throw new CustomError(
         "email and password do not exit in request body",
-        404
+        400
       );
     }
     //check if email is valid
@@ -57,11 +57,11 @@ export const createCustomer = async (customerData: {
     }
     //check if all customer are of type string
     if (
-      typeof email !== "string" ||
-      typeof firstName !== "string" ||
-      typeof lastName !== "string" ||
-      typeof address !== "string" ||
-      typeof password !== "string" ||
+      typeof email !== "string" &&
+      typeof firstName !== "string" &&
+      typeof lastName !== "string" &&
+      typeof address !== "string" &&
+      typeof password !== "string" &&
       typeof phoneNumber !== "string"
     ) {
       throw new CustomError(
@@ -72,6 +72,56 @@ export const createCustomer = async (customerData: {
     //check if email is a valid email address
     if (!email.match(emailFormat)) {
       throw new CustomError("Invalid email format", 422);
+    }
+    //check password length (password must be at least 8 characters long)
+    if (password.length < 8) {
+      throw new CustomError("password must be atleast 8 characters long", 422);
+    }
+  } catch (err: any) {
+    throw new CustomError(err.message, err.statusCode);
+  }
+};
+
+//login validation
+export const login = async (loginData: {
+  email: string;
+  password: string;
+  user: string;
+}) => {
+  const { email, password, user } = loginData;
+  const emailFormat = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/gi;
+  try {
+    //check if user exist
+    if (!user) {
+      throw new CustomError(
+        "User not assigned: user assigned in a query parameter as either 'admin' or 'custome'",
+        422
+      );
+    }
+    //check user: user must be either admin or customer
+    if (
+      user.toLocaleLowerCase() !== "admin" &&
+      user.toLocaleLowerCase() !== "customer"
+    ) {
+      throw new CustomError(
+        "Invalid user: user must either 'admin' or 'customer'",
+        422
+      );
+    }
+    //check if email and password exist
+    if (!email && !password) {
+      throw new CustomError(
+        "email and password need to be exist in request body",
+        400
+      );
+    }
+    //check if passowrd and email are of type string
+    if (typeof email !== "string" && typeof password !== "string") {
+      throw new CustomError("email and password must be of type string", 422);
+    }
+    // check if email is valid email address
+    if (!email.match(emailFormat)) {
+      throw new CustomError("invalid email format", 422);
     }
     //check password length (password must be at least 8 characters long)
     if (password.length < 8) {

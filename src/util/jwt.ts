@@ -2,7 +2,7 @@ import CustomError from "./error";
 import jwt from "jsonwebtoken";
 
 const jwtKey = process.env.JWT_KEY;
-export const generateToken = async (payload: { id: string; role: string }) => {
+export const generateToken = async (payload: { id: string; user: string }) => {
   try {
     //check if jwt key is defined
     if (!jwtKey) {

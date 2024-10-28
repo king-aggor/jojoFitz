@@ -64,3 +64,59 @@ export const createCustomer = async (customerData: {
     throw new CustomError(err.message, err.statusCode);
   }
 };
+
+// user login
+export const login = async (userData: {
+  email: string;
+  password: string;
+  user: string;
+}) => {
+  const { email, password, user } = userData;
+  try {
+    //if user is admin
+    if (user.toLocaleLowerCase() === "admin") {
+      //check if admin with user email exist
+      const admin = await prisma.admin.findUnique({
+        where: {
+          email,
+        },
+      });
+      if (!admin) {
+        throw new CustomError("admin does not exist", 404);
+      }
+      // check if password match
+      const isPasswordMatch = await bcrypt.verifyPassword(
+        password,
+        admin.password
+      );
+      if (!isPasswordMatch) {
+        throw new CustomError("incorrect password", 401);
+      }
+      return admin;
+    }
+
+    //if user is customer
+    if (user.toLocaleLowerCase() === "customer") {
+      //check if customer with user email exist
+      const customer = await prisma.customer.findUnique({
+        where: {
+          email,
+        },
+      });
+      if (!customer) {
+        throw new CustomError("customer does not exist", 404);
+      }
+      //check if password match
+      const isPasswordMatch = await bcrypt.verifyPassword(
+        password,
+        customer.password
+      );
+      if (!isPasswordMatch) {
+        throw new CustomError("incorrect password", 401);
+      }
+      return customer;
+    }
+  } catch (err: any) {
+    throw new CustomError(err.message, err.statusCode);
+  }
+};
