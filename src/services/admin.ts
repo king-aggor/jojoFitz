@@ -61,12 +61,38 @@ export const deleteCategory = async (id: string) => {
           404
         );
       }
-      throw new CustomError(
-        ` Prisma error ${err.code}: ${err.meta?.cause}`,
-        500
-      );
+      throw new CustomError(` Prisma error: ${err.code}`, 500);
     }
     // console.log(err);
+    throw new CustomError(err.message, err.statusCode);
+  }
+};
+
+// add product
+export const addProduct = async (productdata: {
+  name: string;
+  quantity: number;
+  description: string;
+  categoryId: string;
+}) => {
+  const { name, quantity, description, categoryId } = productdata;
+  try {
+    const newProduct = await prisma.product.create({
+      data: {
+        name,
+        quantity,
+        description,
+        categoryId,
+      },
+    });
+    return newProduct;
+  } catch (err: any) {
+    if (err instanceof PrismaClientKnownRequestError) {
+      if (err.code === "P2003") {
+        throw new CustomError(`Prisma error: Invalid category id`, 500);
+      }
+      throw new CustomError(`prisma error: ${err.code}`, 500);
+    }
     throw new CustomError(err.message, err.statusCode);
   }
 };

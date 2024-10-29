@@ -40,6 +40,7 @@ model Product {
   name        String
   quantity    Int
   description String
+  createdAt   DateTime @default(now())
   category    Category @relation(fields: [categoryId], references: [id])
   categoryId  String
   orders      Order[]

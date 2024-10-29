@@ -86,7 +86,7 @@ export const addProduct = async (
   res: Response,
   next: NextFunction
 ) => {
-  const authorization: string = req.headers.authorization as string;
+  const authToken: string = req.headers.authorization as string;
   const productData: {
     name: string;
     quantity: number;
@@ -94,9 +94,13 @@ export const addProduct = async (
     categoryId: string;
   } = req.body;
   try {
+    await datavalidation.token(authToken);
+    await authorization.admin(authToken);
+    await datavalidation.product(productData);
+    const newProduct = await adminService.addProduct(productData);
     res.status(200).json({
-      message: "ok",
-      authorization,
+      message: "New product added successfully",
+      newProduct,
     });
   } catch (err: any) {
     next({

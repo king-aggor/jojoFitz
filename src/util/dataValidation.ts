@@ -203,3 +203,36 @@ export const id = async (id: string) => {
     throw new CustomError(err.message, err.status);
   }
 };
+
+//add product
+export const product = async (productData: {
+  name: string;
+  quantity: number;
+  description: string;
+  categoryId: string;
+}) => {
+  const { name, quantity, description, categoryId } = productData;
+  try {
+    //check if all product data does not exist
+    if (!name || !quantity || !description || !categoryId) {
+      throw new CustomError(
+        "name, quantity, description and categoryId must exist in request body",
+        404
+      );
+    }
+    //check if product data is are of expected types
+    if (
+      typeof name !== "string" ||
+      typeof quantity !== "number" ||
+      typeof description !== "string" ||
+      typeof categoryId !== "string"
+    ) {
+      throw new CustomError(
+        "name, description and categoryId must be of type, quantity must be of type number",
+        400
+      );
+    }
+  } catch (err: any) {
+    throw new CustomError(err.message, err.status);
+  }
+};
