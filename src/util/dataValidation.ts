@@ -8,14 +8,14 @@ export const createAdmin = async (adminData: {
   const { email, password } = adminData;
   const emailFormat = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/gi;
   try {
-    //check if email and password exit in request body
+    //check if email and password does not exit in request body
     if (!email && !password) {
       throw new CustomError(
         "email and password do not exit in request body",
         400
       );
     }
-    //check if email is valid
+    //check if email is not valid
     if (!email.match(emailFormat)) {
       throw new CustomError("Invalid email address", 422);
     }
@@ -41,7 +41,7 @@ export const createCustomer = async (customerData: {
     customerData;
   const emailFormat = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/gi;
   try {
-    //check if all customer data exist
+    //check if all customer data does not exist
     if (
       !email ||
       !firstName ||
@@ -55,7 +55,7 @@ export const createCustomer = async (customerData: {
         422
       );
     }
-    //check if all customer are of type string
+    //check if all customer data are not of type string
     if (
       typeof email !== "string" ||
       typeof firstName !== "string" ||
@@ -69,7 +69,7 @@ export const createCustomer = async (customerData: {
         422
       );
     }
-    //check if email is a valid email address
+    //check if email is not a valid email address
     if (!email.match(emailFormat)) {
       throw new CustomError("Invalid email format", 422);
     }
@@ -91,7 +91,7 @@ export const login = async (loginData: {
   const { email, password, user } = loginData;
   const emailFormat = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/gi;
   try {
-    //check if user exist
+    //check if user does not exist
     if (!user) {
       throw new CustomError(
         "User not assigned: user assigned in a query parameter as either 'admin' or 'custome'",
@@ -108,18 +108,18 @@ export const login = async (loginData: {
         422
       );
     }
-    //check if email and password exist
+    //check if email and do not password exist
     if (!email && !password) {
       throw new CustomError(
         "email and password need to be exist in request body",
         400
       );
     }
-    //check if passowrd and email are of type string
+    //check if passowrd and email are not of type string
     if (typeof email !== "string" || typeof password !== "string") {
       throw new CustomError("email and password must be of type string", 422);
     }
-    // check if email is valid email address
+    // check if email is not a valid email address
     if (!email.match(emailFormat)) {
       throw new CustomError("invalid email format", 422);
     }
@@ -135,14 +135,14 @@ export const login = async (loginData: {
 // token validation
 export const token = async (token: string) => {
   try {
-    //check if token exist
+    //check if token does not exist
     if (!token) {
       throw new CustomError(
         "No token found: Assign token to authorization in request headers",
         401
       );
     }
-    //check if token is of type string
+    //check if token is not of type string
     if (typeof token !== "string") {
       throw new CustomError("invalid token: token must be of type string", 400);
     }
@@ -155,11 +155,11 @@ export const token = async (token: string) => {
 export const category = async (categoryData: { name: string }) => {
   const { name } = categoryData;
   try {
-    //check if name exist
+    //check if does not name exist
     if (!name) {
       throw new CustomError("name must be exist in request body", 401);
     }
-    //check if name is of type string
+    //check if name is not of type string
     if (typeof name !== "string") {
       throw new CustomError("name must be of type string", 400);
     }
@@ -175,15 +175,31 @@ export const updatedCategory = async (updateCategoryData: {
 }) => {
   const { id, name } = updateCategoryData;
   try {
-    //check if id and name exist
+    //check if id and name dop not exist
     if (!id || !name) {
       throw new CustomError("id and name must be exist in request body", 401);
     }
-    //check if id and name is of type string
+    //check if id and name are not of type string
     if (typeof id !== "string" || typeof name !== "string") {
       throw new CustomError("id and name must be of type string", 400);
     }
   } catch (err: any) {
     throw new CustomError(err.message, err.statusCode);
+  }
+};
+
+//id validation
+export const id = async (id: string) => {
+  try {
+    // check if id does not exist
+    if (!id) {
+      throw new CustomError("Invalid data: id does not exist", 404);
+    }
+    //check if id isnt of type atring
+    if (typeof id !== "string") {
+      throw new CustomError("Invalid data: id must be of type string", 400);
+    }
+  } catch (err: any) {
+    throw new CustomError(err.message, err.status);
   }
 };

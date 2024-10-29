@@ -55,6 +55,31 @@ export const updateCategory = async (
   }
 };
 
+//delete category
+export const deleteCategory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authToken: string = req.headers.authorization as string;
+  const id: string = req.body.id;
+  try {
+    await datavalidation.token(authToken);
+    await authorization.admin(authToken);
+    await datavalidation.id(id);
+    const deletedCategory = await adminService.deleteCategory(id);
+    res.status(200).json({
+      message: `category deleted successfully`,
+      deletedCategory,
+    });
+  } catch (err: any) {
+    next({
+      status: err.status,
+      message: err.message,
+    });
+  }
+};
+
 //add product
 export const addProduct = async (
   req: Request,

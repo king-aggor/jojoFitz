@@ -7,6 +7,8 @@ const router = Router();
 router.post("/category", adminController.addCategory);
 //Patch category
 router.patch("/category", adminController.updateCategory);
+// delete category
+router.delete("/category", adminController.deleteCategory);
 // Post addProduct
 router.post("/product", adminController.addProduct);
 

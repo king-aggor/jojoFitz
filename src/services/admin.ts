@@ -40,10 +40,33 @@ export const updateCategory = async (updatedCategoryData: {
         );
       }
       throw new CustomError(
-        "Prisma error: Something went wrong. unable to update category",
+        ` Prisma error ${err.code}: ${err.meta?.cause}`,
         500
       );
     }
+    throw new CustomError(err.message, err.statusCode);
+  }
+};
+
+// delete category
+export const deleteCategory = async (id: string) => {
+  try {
+    const deletedCategory = await prisma.category.delete({ where: { id } });
+    return deletedCategory;
+  } catch (err: any) {
+    if (err instanceof PrismaClientKnownRequestError) {
+      if (err.code == "P2025") {
+        throw new CustomError(
+          "prisma error: Category to delete does not exist in database",
+          404
+        );
+      }
+      throw new CustomError(
+        ` Prisma error ${err.code}: ${err.meta?.cause}`,
+        500
+      );
+    }
+    // console.log(err);
     throw new CustomError(err.message, err.statusCode);
   }
 };
