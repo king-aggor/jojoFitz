@@ -220,7 +220,7 @@ export const product = async (productData: {
         404
       );
     }
-    //check if product data is are of expected types
+    //check if product data is are not of expected types
     if (
       typeof name !== "string" ||
       typeof quantity !== "number" ||
@@ -234,5 +234,40 @@ export const product = async (productData: {
     }
   } catch (err: any) {
     throw new CustomError(err.message, err.status);
+  }
+};
+
+//update product
+export const updateProduct = async (updatedProductData: {
+  id: string;
+  name: string;
+  quantity: number;
+  description: string;
+  categoryId: string;
+}) => {
+  const { id, name, quantity, description, categoryId } = updatedProductData;
+  try {
+    // check if id and other update product data do not exixt
+    if (!id || (!name && !quantity && !description && !categoryId)) {
+      throw new CustomError(
+        "Data validation error: 'id' and at least one of 'name', 'quantity', 'description', or 'categoryId' must be provided in the request body.",
+        404
+      );
+    }
+    //check if update product data are of expected types
+    if (
+      typeof id !== "string" &&
+      typeof name !== "string" &&
+      typeof quantity !== "number" &&
+      typeof description !== "string" &&
+      typeof categoryId !== "string"
+    ) {
+      throw new CustomError(
+        "data validation error: quantity must be of type number, and id or name or description or categoryId must be of type string",
+        400
+      );
+    }
+  } catch (err: any) {
+    throw new CustomError(err.message, err.statusCode);
   }
 };

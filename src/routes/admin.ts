@@ -11,5 +11,7 @@ router.patch("/category", adminController.updateCategory);
 router.delete("/category", adminController.deleteCategory);
 // Post addProduct
 router.post("/product", adminController.addProduct);
+//patch product
+router.patch("/product", adminController.updateProduct);
 
 export default router;

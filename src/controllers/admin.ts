@@ -109,3 +109,34 @@ export const addProduct = async (
     });
   }
 };
+
+// update product
+export const updateProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authToken = req.headers.authorization as string;
+  const updateProductData: {
+    id: string;
+    name: string;
+    quantity: number;
+    description: string;
+    categoryId: string;
+  } = req.body;
+  try {
+    await datavalidation.token(authToken);
+    await authorization.admin(authToken);
+    await datavalidation.updateProduct(updateProductData);
+    const updatedProduct = await adminService.updateProduct(updateProductData);
+    res.status(200).json({
+      messgae: "product updated successfully",
+      updatedProduct,
+    });
+  } catch (err: any) {
+    next({
+      status: err.statusCode,
+      message: err.message,
+    });
+  }
+};

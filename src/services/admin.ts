@@ -96,3 +96,39 @@ export const addProduct = async (productdata: {
     throw new CustomError(err.message, err.statusCode);
   }
 };
+
+// update product
+export const updateProduct = async (updateProductData: {
+  id: string;
+  name: string;
+  quantity: number;
+  description: string;
+  categoryId: string;
+}) => {
+  // const productId = updateProductData.id
+  const { id, ...data } = updateProductData;
+  try {
+    const updatedProduct = await prisma.product.update({
+      where: { id },
+      data: data,
+    });
+    return updatedProduct;
+  } catch (err: any) {
+    if (err instanceof PrismaClientKnownRequestError) {
+      if (err.code === "P2025") {
+        throw new CustomError(
+          `Prisma error: product id doesnt match any product in product table `,
+          500
+        );
+      }
+      if (err.code === "P2003") {
+        throw new CustomError(
+          `Prisma error: category id doesnt match any category in category table`,
+          500
+        );
+      }
+      throw new CustomError(`prisma error: ${err.code}`, 500);
+    }
+    throw new CustomError(err.message, err.statusCode);
+  }
+};
