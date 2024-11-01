@@ -13,5 +13,7 @@ router.delete("/category", adminController.deleteCategory);
 router.post("/product", adminController.addProduct);
 //patch product
 router.patch("/product", adminController.updateProduct);
+//delete product
+router.delete("/product", adminController.deleteProduct);
 
 export default router;

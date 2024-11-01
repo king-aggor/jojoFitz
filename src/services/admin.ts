@@ -89,7 +89,10 @@ export const addProduct = async (productdata: {
   } catch (err: any) {
     if (err instanceof PrismaClientKnownRequestError) {
       if (err.code === "P2003") {
-        throw new CustomError(`Prisma error: Invalid category id`, 500);
+        throw new CustomError(
+          `Prisma error: category id doesnt match any category in category table`,
+          404
+        );
       }
       throw new CustomError(`prisma error: ${err.code}`, 500);
     }
@@ -118,16 +121,37 @@ export const updateProduct = async (updateProductData: {
       if (err.code === "P2025") {
         throw new CustomError(
           `Prisma error: product id doesnt match any product in product table `,
-          500
+          404
         );
       }
       if (err.code === "P2003") {
         throw new CustomError(
           `Prisma error: category id doesnt match any category in category table`,
-          500
+          404
         );
       }
       throw new CustomError(`prisma error: ${err.code}`, 500);
+    }
+    throw new CustomError(err.message, err.statusCode);
+  }
+};
+
+//delete product
+export const deleteProduct = async (id: string) => {
+  try {
+    const deletedProduct = await prisma.product.delete({
+      where: { id },
+    });
+    return deletedProduct;
+  } catch (err: any) {
+    if (err instanceof PrismaClientKnownRequestError) {
+      if (err.code === "P2025") {
+        throw new CustomError(
+          `Prisma error: product id doesnt match any product in product table `,
+          404
+        );
+      }
+      throw new CustomError(`Prisma error: ${err.code}`, 500);
     }
     throw new CustomError(err.message, err.statusCode);
   }

@@ -140,3 +140,28 @@ export const updateProduct = async (
     });
   }
 };
+
+//delete product
+export const deleteProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authToken = req.headers.authorization as string;
+  const productId = req.body.id;
+  try {
+    await datavalidation.token(authToken);
+    await authorization.admin(authToken);
+    await datavalidation.id(productId);
+    const deletedProduct = await adminService.deleteProduct(productId);
+    res.status(200).json({
+      message: "Product deleted successfully",
+      deletedProduct,
+    });
+  } catch (err: any) {
+    next({
+      status: err.statusCode,
+      message: err.message,
+    });
+  }
+};
