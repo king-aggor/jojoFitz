@@ -8,9 +8,27 @@ export const allProducts = async () => {
       orderBy: {
         createdAt: "desc",
       },
+      include: {
+        category: true,
+      },
     });
     return products;
   } catch (err: any) {
-    throw new CustomError(err.message, err.status);
+    throw new CustomError(err.message, err.statusCode);
+  }
+};
+
+//get product by id
+export const getProduct = async (id: string) => {
+  try {
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: {
+        category: true,
+      },
+    });
+    return product;
+  } catch (err: any) {
+    throw new CustomError(err.message, err.statusCode);
   }
 };
