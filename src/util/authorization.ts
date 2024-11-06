@@ -5,7 +5,7 @@ import CustomError from "./error";
 export const admin = async (authToken: string) => {
   try {
     const tokenData = await jwt.verifyToken(authToken);
-    //check if user is admin
+    //check if user is  not admin
     const user = tokenData.user.toLocaleLowerCase();
     if (user !== "admin") {
       throw new CustomError("unauthorized user: user must be an admin", 493);
@@ -21,7 +21,7 @@ export const customer = async (authToken: string) => {
     const tokenData: { id: string; user: string } = await jwt.verifyToken(
       authToken
     );
-    //check if user is admin
+    //check if user is not customer
     const user = tokenData.user.toLocaleLowerCase();
     if (user !== "customer") {
       throw new CustomError("unauthorized user: user must be a customer", 493);

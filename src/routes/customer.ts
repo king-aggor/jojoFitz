@@ -7,5 +7,7 @@ const router = Router();
 router.get("/products", customerController.allProducts);
 //get product by id
 router.get("/product/:id", customerController.getProduct);
+// add to cart
+router.post("/cart", customerController.updateCart);
 
 export default router;

@@ -303,7 +303,7 @@ export const addToCart = async (
       );
     }
     // check if product id and quantity are of type string
-    if (typeof id === "string" || typeof quantity === "number") {
+    if (typeof id !== "string" || typeof quantity !== "number") {
       throw new CustomError(
         "Data validation error: id must be of type string and quantity must be of type number",
         400

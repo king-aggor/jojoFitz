@@ -50,3 +50,37 @@ export const getProduct = async (
     });
   }
 };
+
+// NB: cart is created on creation of new customer
+// update cart
+export const updateCart = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authToken = req.headers.authorization as string;
+  const productData: {
+    id: string;
+    quantity: number;
+  } = req.body;
+  try {
+    await dataValidation.token(authToken);
+    const userData = await authorization.customer(authToken);
+    const customerId: string = userData.id;
+    // const customerId: string = "344r3uuoijn";
+    await dataValidation.addToCart(customerId, productData);
+    const updatedCart = await customerService.addToCart(
+      customerId,
+      productData
+    );
+    res.status(200).json({
+      message: "okay",
+      updatedCart,
+    });
+  } catch (err: any) {
+    next({
+      status: err.statusCode,
+      message: err.message,
+    });
+  }
+};
