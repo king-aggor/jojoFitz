@@ -208,27 +208,29 @@ export const id = async (id: string) => {
 export const product = async (productData: {
   name: string;
   quantity: number;
+  price: number;
   description: string;
   categoryId: string;
 }) => {
-  const { name, quantity, description, categoryId } = productData;
+  const { name, quantity, price, description, categoryId } = productData;
   try {
-    //check if all product data does not exist
-    if (!name || !quantity || !description || !categoryId) {
+    //check if all product data exist
+    if (!name || !quantity || !price || !description || !categoryId) {
       throw new CustomError(
-        "name, quantity, description and categoryId must exist in request body",
+        "Data validation error: name, quantity, price, description and categoryId must exist in request body",
         404
       );
     }
-    //check if product data is are not of expected types
+    //check if product data are of expected types
     if (
       typeof name !== "string" ||
       typeof quantity !== "number" ||
+      typeof price !== "number" ||
       typeof description !== "string" ||
       typeof categoryId !== "string"
     ) {
       throw new CustomError(
-        "name, description and categoryId must be of type, quantity must be of type number",
+        "Data validation error: name, description and categoryId must be of type string, quantity and price must be of type number",
         400
       );
     }
@@ -264,6 +266,46 @@ export const updateProduct = async (updatedProductData: {
     ) {
       throw new CustomError(
         "data validation error: quantity must be of type number, and id or name or description or categoryId must be of type string",
+        400
+      );
+    }
+  } catch (err: any) {
+    throw new CustomError(err.message, err.statusCode);
+  }
+};
+
+//add to cart
+export const addToCart = async (
+  customerId: string,
+  productData: { id: string; quantity: number }
+) => {
+  const { id, quantity } = productData;
+  try {
+    //check if customer id exist
+    if (!customerId) {
+      throw new CustomError(
+        "Data validation error: customerId must exist in decoded token data",
+        404
+      );
+    }
+    //check if customerId is of type string
+    if (typeof customerId !== "string") {
+      throw new CustomError(
+        "Data validation error: CustomerId in decoded token data must be of type string",
+        400
+      );
+    }
+    //check if product id  and quantity exists
+    if (!id || !quantity) {
+      throw new CustomError(
+        "Data validation error: id and quantity must exist in request body",
+        404
+      );
+    }
+    // check if product id and quantity are of type string
+    if (typeof id === "string" || typeof quantity === "number") {
+      throw new CustomError(
+        "Data validation error: id must be of type string and quantity must be of type number",
         400
       );
     }

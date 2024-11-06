@@ -90,6 +90,7 @@ export const addProduct = async (
   const productData: {
     name: string;
     quantity: number;
+    price: number;
     description: string;
     categoryId: string;
   } = req.body;

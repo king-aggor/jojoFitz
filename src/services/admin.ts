@@ -1,6 +1,7 @@
 import prisma from "../util/prisma";
 import CustomError from "../util/error";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { Prisma } from "@prisma/client";
 
 //add category
 export const addCategory = async (categoryData: { name: string }) => {
@@ -72,15 +73,17 @@ export const deleteCategory = async (id: string) => {
 export const addProduct = async (productdata: {
   name: string;
   quantity: number;
+  price: number;
   description: string;
   categoryId: string;
 }) => {
-  const { name, quantity, description, categoryId } = productdata;
+  const { name, quantity, price, description, categoryId } = productdata;
   try {
     const newProduct = await prisma.product.create({
       data: {
         name,
         quantity,
+        price: parseFloat(price.toFixed(2)),
         description,
         categoryId,
       },
