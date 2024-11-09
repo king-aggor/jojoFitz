@@ -109,3 +109,21 @@ export const addToCart = async (
     throw new CustomError(err.message, err.statusCode);
   }
 };
+
+//get customer cart items
+export const getCartItems = async (customerId: string) => {
+  try {
+    //find cart by customer id
+    const cart = await prisma.cart.findUnique({
+      where: { customerId },
+      select: {
+        products: true,
+      },
+    });
+    //extract cart items fro cart
+    const cartItems = cart?.products;
+    return cartItems;
+  } catch (err: any) {
+    throw new CustomError(err.message, err.statusCode);
+  }
+};

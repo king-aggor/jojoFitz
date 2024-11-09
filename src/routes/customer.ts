@@ -8,6 +8,8 @@ router.get("/products", customerController.allProducts);
 //get product by id
 router.get("/product/:id", customerController.getProduct);
 // add to cart
-router.post("/cart", customerController.updateCart);
+router.post("/cart", customerController.addToCart);
+//get customer cart items
+router.get("/cart", customerController.getCartItems);
 
 export default router;

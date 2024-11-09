@@ -53,7 +53,7 @@ export const getProduct = async (
 
 // NB: cart is created on creation of new customer
 // update cart
-export const updateCart = async (
+export const addToCart = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -65,8 +65,11 @@ export const updateCart = async (
   } = req.body;
   try {
     await dataValidation.token(authToken);
-    const userData = await authorization.customer(authToken);
-    const customerId: string = userData.id;
+    const customerData: {
+      id: string;
+      user: string;
+    } = await authorization.customer(authToken);
+    const customerId: string = customerData.id;
     // const customerId: string = "344r3uuoijn";
     await dataValidation.addToCart(customerId, productData);
     const updatedCart = await customerService.addToCart(
@@ -74,8 +77,35 @@ export const updateCart = async (
       productData
     );
     res.status(200).json({
-      message: "okay",
+      message: "Cart item to customer cart added successfully",
       updatedCart,
+    });
+  } catch (err: any) {
+    next({
+      status: err.statusCode,
+      message: err.message,
+    });
+  }
+};
+
+//get customer cart items
+export const getCartItems = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authToken = req.headers.authorization as string;
+  try {
+    await dataValidation.token(authToken);
+    const customerData: {
+      id: string;
+      user: string;
+    } = await authorization.customer(authToken);
+    const customerId: string = customerData.id;
+    const cartItems = await customerService.getCartItems(customerId);
+    res.status(200).json({
+      message: "Fetched customer cart items successfully",
+      cartItems,
     });
   } catch (err: any) {
     next({
