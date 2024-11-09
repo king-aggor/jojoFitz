@@ -60,7 +60,7 @@ export const addToCart = async (
 ) => {
   const authToken = req.headers.authorization as string;
   const productData: {
-    id: string;
+    productId: string;
     quantity: number;
   } = req.body;
   try {
@@ -106,6 +106,34 @@ export const getCartItems = async (
     res.status(200).json({
       message: "Fetched customer cart items successfully",
       cartItems,
+    });
+  } catch (err: any) {
+    next({
+      status: err.statusCode,
+      message: err.message,
+    });
+  }
+};
+
+//delete cart item
+export const removeCartItem = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authToken = req.headers.authorization as string;
+  const productId: string = req.body.productId;
+  try {
+    await dataValidation.token(authToken);
+    const customerData: {
+      id: string;
+      user: string;
+    } = await authorization.customer(authToken);
+    await dataValidation.id(productId);
+    const customerId = customerData.id;
+    await customerService.removeCartItem(customerId, productId);
+    res.status(200).json({
+      message: `Cart item with id ${productId} removed from cart successfully`,
     });
   } catch (err: any) {
     next({

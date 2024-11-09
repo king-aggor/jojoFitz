@@ -36,7 +36,7 @@ export const getProduct = async (id: string) => {
 //update cart
 export const addToCart = async (
   customerId: string,
-  productData: { id: string; quantity: number }
+  productData: { productId: string; quantity: number }
 ) => {
   type CartProduct = {
     id: string;
@@ -49,7 +49,7 @@ export const addToCart = async (
     //find product to add to cart
     const product = await prisma.product.findUnique({
       where: {
-        id: productData.id,
+        id: productData.productId,
       },
       select: {
         id: true,
@@ -120,9 +120,62 @@ export const getCartItems = async (customerId: string) => {
         products: true,
       },
     });
+    //if customer cart not found
+    if (!cart) {
+      throw new CustomError("Database error: customer cart not found", 404);
+    }
     //extract cart items fro cart
     const cartItems = cart?.products;
     return cartItems;
+  } catch (err: any) {
+    throw new CustomError(err.message, err.statusCode);
+  }
+};
+
+// remove customer cart item from cart
+export const removeCartItem = async (customerId: string, productId: string) => {
+  try {
+    //find cart by customer id
+    const cart = await prisma.cart.findUnique({
+      where: { customerId },
+      select: {
+        products: true,
+      },
+    });
+    //if cart customer cart does not exist
+    if (!cart) {
+      throw new CustomError("Database error: customer cart not found", 404);
+    }
+    const cartProdutcs = cart.products;
+    //check if product field is an array
+    if (!Array.isArray(cartProdutcs)) {
+      throw new CustomError(
+        "Database error: cart products must be an array",
+        400
+      );
+    }
+    //check if productId exists in cart products array
+    const productExists = cartProdutcs.some(
+      (product: any) => product.id === productId
+    );
+    if (!productExists) {
+      throw new CustomError(
+        `Database error: product with id ${productId} does not exist in cart items`,
+        404
+      );
+    }
+    // Filter and return cart products who's id isnt equal to product id
+    const updatedcartProducts: any = cartProdutcs.filter(
+      (product: any) => product.id !== productId
+    );
+    //update customer cart
+    const updatedCart = await prisma.cart.update({
+      where: { customerId },
+      data: {
+        products: updatedcartProducts,
+      },
+    });
+    return updatedCart;
   } catch (err: any) {
     throw new CustomError(err.message, err.statusCode);
   }

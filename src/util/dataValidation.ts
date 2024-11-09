@@ -277,9 +277,9 @@ export const updateProduct = async (updatedProductData: {
 //add to cart
 export const addToCart = async (
   customerId: string,
-  productData: { id: string; quantity: number }
+  productData: { productId: string; quantity: number }
 ) => {
-  const { id, quantity } = productData;
+  const { productId, quantity } = productData;
   try {
     //check if customer id exist
     if (!customerId) {
@@ -296,16 +296,16 @@ export const addToCart = async (
       );
     }
     //check if product id  and quantity exists
-    if (!id || !quantity) {
+    if (!productId || !quantity) {
       throw new CustomError(
-        "Data validation error: id and quantity must exist in request body",
+        "Data validation error: productId and quantity must exist in request body",
         404
       );
     }
     // check if product id and quantity are of type string
-    if (typeof id !== "string" || typeof quantity !== "number") {
+    if (typeof productId !== "string" || typeof quantity !== "number") {
       throw new CustomError(
-        "Data validation error: id must be of type string and quantity must be of type number",
+        "Data validation error: productId must be of type string and quantity must be of type number",
         400
       );
     }

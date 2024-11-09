@@ -11,5 +11,7 @@ router.get("/product/:id", customerController.getProduct);
 router.post("/cart", customerController.addToCart);
 //get customer cart items
 router.get("/cart", customerController.getCartItems);
+//remove cart item
+router.delete("/cart", customerController.removeCartItem);
 
 export default router;
