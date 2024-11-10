@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import morgan from "morgan";
 
 import authenticationRoute from "./routes/authentication";
 import adminRoute from "./routes/admin";
@@ -15,6 +16,8 @@ const app = express();
 //middleware to use cors
 const corsOptions = { origin: "htttp://localhost:8080" };
 app.use(cors(corsOptions));
+
+app.use(morgan("dev"));
 
 app.use(express.json());
 
