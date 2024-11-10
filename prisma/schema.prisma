@@ -82,9 +82,10 @@ model Order {
 
 // payment model
 model Payment {
-  ref           String @id
-  paymentStatus String
-  Order         Order?
+  ref    String        @id
+  status paymentStatus @default(pending)
+  method String?
+  Order  Order?
 }
 
 // courier model
@@ -100,4 +101,10 @@ enum orderStatus {
   onRoute
   delivered
   cancelled
+}
+
+enum paymentStatus {
+  pending
+  successful
+  failed
 }

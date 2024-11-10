@@ -160,10 +160,13 @@ export const placeOrder = async (
     const customerId = customerData.id;
     // const customerId = "hr3riy633yeh";
     await dataValidation.placeOrder(address);
-    const order = await customerService.placeOrder(customerId, address);
+    const paymentInitializationDetails = await customerService.placeOrder(
+      customerId,
+      address
+    );
     res.status(200).json({
       message: "Order placed successfully",
-      order,
+      paymentInitializationDetails,
     });
   } catch (err: any) {
     next({

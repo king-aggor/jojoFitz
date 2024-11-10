@@ -1,5 +1,8 @@
 import prisma from "../util/prisma";
 import CustomError from "../util/error";
+import axios from "axios";
+
+const paystack_secret_key = process.env.PAYSTACK_SECRET_KEY;
 
 //get all products
 export const allProducts = async () => {
@@ -192,6 +195,7 @@ export const placeOrder = async (customerId: string, address: string) => {
       where: { customerId },
       select: {
         products: true,
+        customer: true,
       },
     });
     // if cart not found
@@ -264,18 +268,58 @@ export const placeOrder = async (customerId: string, address: string) => {
       throw new CustomError("prisma error: could not place order", 400);
     }
     // delete cart products
-    await prisma.cart.update({
-      where: { customerId },
-      data: {
-        products: [],
-      },
-    });
+    // await prisma.cart.update({
+    //   where: { customerId },
+    //   data: {
+    //     products: [],
+    //   },
+    // });
 
-    return order;
+    //paystack
+    try {
+      //paystack api headers
+      const headers = {
+        Authorization: `Bearer ${paystack_secret_key}`,
+        "Content-Type": "application/json",
+      };
+      //payment payload
+      const data = {
+        email: cart.customer.email,
+        amount: parseFloat(totalAmount.toFixed(2)) * 100,
+        currency: "GHS",
+        channels: ["card", "mobile_money"],
+      };
+      //make a request to to paystack api to create a transaction
+      const response: any = await axios.post(
+        "https://api.paystack.co/transaction/initialize",
+        data,
+        { headers }
+      );
+      //check if payment initialization was successful
+      const initializationDataStatus = response.data.status;
+      if (!initializationDataStatus) {
+        throw new CustomError(
+          "Paystack error: payment could not be initialized",
+          502
+        );
+      }
+      await prisma.payment.create({
+        data: {
+          ref: response.data.data.reference,
+          Order: {
+            connect: { id: order.id },
+          },
+        },
+      });
+      const authorizationUrl = response.data.data.authorization_url;
+      const accessCode = response.data.data.access_code;
+      return { authorizationUrl, accessCode };
+    } catch (err: any) {
+      throw new CustomError(err.message, err.statusCode);
+    }
+
+    // return order;
   } catch (err: any) {
     throw new CustomError(err.message, err.statusCode);
   }
 };
-
-//  "cm2v3a1mj0001q2d8qxvo2y4k",
-//             "cm2yrs52p000583pldn14ryq2"
