@@ -60,23 +60,31 @@ model Cart {
   products   Json[]
   customer   Customer @relation(fields: [customerId], references: [id])
   customerId String   @unique
+  // orders     Order[]
 }
 
 // order model
 model Order {
-  id         String      @id @default(cuid())
-  quantity   Int
-  status     orderStatus @default(pending)
-  address    String
-  Customer   Customer?   @relation(fields: [customerId], references: [id])
-  customerId String?
-  products   Product[]
+  id          String      @id @default(cuid())
+  // quantity   Int
+  status      orderStatus @default(pending)
+  address     String
+  orderItems  Json[]
+  totalAmount Float
+  Customer    Customer?   @relation(fields: [customerId], references: [id])
+  customerId  String?
+  products    Product[]
+  payment     Payment?    @relation(fields: [paymentRef], references: [ref])
+  paymentRef  String?     @unique
+  // cart        Cart?       @relation(fields: [cartId], references: [id])
+  // cartId      String?     @unique
 }
 
 // payment model
 model Payment {
   ref           String @id
   paymentStatus String
+  Order         Order?
 }
 
 // courier model

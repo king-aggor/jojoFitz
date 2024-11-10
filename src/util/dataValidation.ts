@@ -313,3 +313,24 @@ export const addToCart = async (
     throw new CustomError(err.message, err.statusCode);
   }
 };
+
+export const placeOrder = async (address: string) => {
+  try {
+    //check if address exist in request body
+    if (!address) {
+      throw new CustomError(
+        "Data validation error: address must exist in request body",
+        404
+      );
+    }
+    //check if address is of type string
+    if (typeof address !== "string") {
+      throw new CustomError(
+        "Data validation error: address must be of type string",
+        400
+      );
+    }
+  } catch (err: any) {
+    throw new CustomError(err.message, err.statusCode);
+  }
+};

@@ -142,3 +142,33 @@ export const removeCartItem = async (
     });
   }
 };
+
+// place order
+export const placeOrder = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authToken = req.headers.authorization as string;
+  const address: string = req.body.address;
+  try {
+    await dataValidation.token(authToken);
+    const customerData: {
+      id: string;
+      user: string;
+    } = await authorization.customer(authToken);
+    const customerId = customerData.id;
+    // const customerId = "hr3riy633yeh";
+    await dataValidation.placeOrder(address);
+    const order = await customerService.placeOrder(customerId, address);
+    res.status(200).json({
+      message: "Order placed successfully",
+      order,
+    });
+  } catch (err: any) {
+    next({
+      status: err.statusCode,
+      message: err.message,
+    });
+  }
+};

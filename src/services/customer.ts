@@ -102,6 +102,9 @@ export const addToCart = async (
       data: {
         products: updatedCartProducts,
       },
+      select: {
+        products: true,
+      },
     });
 
     return updatedCart;
@@ -180,3 +183,99 @@ export const removeCartItem = async (customerId: string, productId: string) => {
     throw new CustomError(err.message, err.statusCode);
   }
 };
+
+//place order
+export const placeOrder = async (customerId: string, address: string) => {
+  try {
+    //find customer cart
+    const cart = await prisma.cart.findUnique({
+      where: { customerId },
+      select: {
+        products: true,
+      },
+    });
+    // if cart not found
+    if (!cart) {
+      throw new CustomError(
+        "Database error: customer id is not associated with any cart in database",
+        404
+      );
+    }
+    // extract cart items from cart
+    const cartItems:
+      | {
+          id: string;
+          name: string;
+          price: number;
+          quantity: number;
+        }[]
+      | {} = cart.products;
+    //check if cartItems is an array
+    if (!Array.isArray(cartItems)) {
+      throw new CustomError(
+        "Database error: cart products must be an array",
+        400
+      );
+    }
+    //if cartItems is an empty array
+    if (cartItems.length < 1) {
+      throw new CustomError(
+        "Database error: Customer has no items in cart",
+        404
+      );
+    }
+
+    // find each product in cart items array and calculate totalAmount (cart item quanty *  price)
+    let productIds: { id: string }[] = [];
+    let orderItems: {
+      id: string;
+      name: string;
+      price: number;
+      quantity: number;
+    }[] = [];
+    let totalAmount: number = 0;
+    let product;
+    for (const item of cartItems) {
+      product = await prisma.product.findUnique({
+        where: { id: item.id },
+      });
+      //if product exist and product quantity is more than or eqaul to cart item quantity
+      if (product && product.quantity >= item.quantity) {
+        productIds.push({ id: product.id });
+        orderItems.push(item);
+        totalAmount += item.quantity * item.price;
+      }
+    }
+    //create order
+    const order = await prisma.order.create({
+      data: {
+        address,
+        orderItems,
+        totalAmount: parseFloat(totalAmount.toFixed(2)),
+        customerId,
+        products: {
+          connect: productIds,
+        },
+      },
+    });
+
+    //if order not created
+    if (!order) {
+      throw new CustomError("prisma error: could not place order", 400);
+    }
+    // delete cart products
+    await prisma.cart.update({
+      where: { customerId },
+      data: {
+        products: [],
+      },
+    });
+
+    return order;
+  } catch (err: any) {
+    throw new CustomError(err.message, err.statusCode);
+  }
+};
+
+//  "cm2v3a1mj0001q2d8qxvo2y4k",
+//             "cm2yrs52p000583pldn14ryq2"

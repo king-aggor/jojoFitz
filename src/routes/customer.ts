@@ -13,5 +13,7 @@ router.post("/cart", customerController.addToCart);
 router.get("/cart", customerController.getCartItems);
 //remove cart item
 router.delete("/cart", customerController.removeCartItem);
+//ploace order
+router.post("/order", customerController.placeOrder);
 
 export default router;
