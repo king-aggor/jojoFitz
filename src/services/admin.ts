@@ -159,3 +159,13 @@ export const deleteProduct = async (id: string) => {
     throw new CustomError(err.message, err.statusCode);
   }
 };
+
+//get all orders
+export const getOrders = async () => {
+  try {
+    const orders = await prisma.order.findMany();
+    return orders;
+  } catch (err: any) {
+    throw new CustomError(err.message, err.statusCode);
+  }
+};

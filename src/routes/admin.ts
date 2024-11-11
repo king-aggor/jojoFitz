@@ -15,5 +15,7 @@ router.post("/product", adminController.addProduct);
 router.patch("/product", adminController.updateProduct);
 //delete product
 router.delete("/product", adminController.deleteProduct);
+//get all orders
+router.get("/orders", adminController.getOrders);
 
 export default router;

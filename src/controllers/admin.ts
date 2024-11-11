@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import * as datavalidation from "../util/dataValidation";
 import * as authorization from "../util/authorization";
 import * as adminService from "../services/admin";
+import { all } from "axios";
 
 //add category
 export const addCategory = async (
@@ -158,6 +159,29 @@ export const deleteProduct = async (
     res.status(200).json({
       message: "Product deleted successfully",
       deletedProduct,
+    });
+  } catch (err: any) {
+    next({
+      status: err.statusCode,
+      message: err.message,
+    });
+  }
+};
+
+// get all orders
+export const getOrders = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authToken = req.headers.authorization as string;
+  try {
+    await datavalidation.token(authToken);
+    await authorization.admin(authToken);
+    const orders = await adminService.getOrders();
+    res.status(200).json({
+      message: "All orders fetched successfully",
+      orders,
     });
   } catch (err: any) {
     next({
