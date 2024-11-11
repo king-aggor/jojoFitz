@@ -2,6 +2,9 @@ import { Request, Response, NextFunction } from "express";
 import * as dataValidation from "../util/dataValidation";
 import * as authorization from "../util/authorization";
 import * as customerService from "../services/customer";
+import crypto from "crypto";
+
+const paystack_secret_key: any = process.env.PAYSTACK_SECRET_KEY;
 
 //get all products
 export const allProducts = async (
@@ -9,10 +12,8 @@ export const allProducts = async (
   res: Response,
   next: NextFunction
 ) => {
-  const authToken = req.headers.authorization as string;
+  // const authToken = req.headers.authorization as string;
   try {
-    await dataValidation.token(authToken);
-    await authorization.customer(authToken);
     const products = await customerService.allProducts();
     res.status(200).json({
       message: "Get all products",
@@ -32,11 +33,8 @@ export const getProduct = async (
   res: Response,
   next: NextFunction
 ) => {
-  const authToken = req.headers.authorization as string;
   const productId: string = req.params.id;
   try {
-    await dataValidation.token(authToken);
-    await authorization.customer(authToken);
     await dataValidation.id(productId);
     const product = await customerService.getProduct(productId);
     res.status(200).json({
@@ -167,6 +165,33 @@ export const placeOrder = async (
     res.status(200).json({
       message: "Order placed successfully",
       paymentInitializationDetails,
+    });
+  } catch (err: any) {
+    next({
+      status: err.statusCode,
+      message: err.message,
+    });
+  }
+};
+
+//webhook
+export const webhook = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const event: {} = req.body;
+  try {
+    const hash = await crypto
+      .createHmac("sha512", paystack_secret_key)
+      .update(JSON.stringify(req.body))
+      .digest("hex");
+    // verify event origin
+    if (hash == req.headers["x-paystack-signature"]) {
+      await customerService.updatePayment(event);
+    }
+    res.status(200).json({
+      message: "okay",
     });
   } catch (err: any) {
     next({

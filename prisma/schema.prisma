@@ -82,10 +82,11 @@ model Order {
 
 // payment model
 model Payment {
-  ref    String        @id
-  status paymentStatus @default(pending)
-  method String?
-  Order  Order?
+  ref        String        @id
+  amountPaid Float?
+  status     paymentStatus @default(pending)
+  method     String?
+  Order      Order?
 }
 
 // courier model

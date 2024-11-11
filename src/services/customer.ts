@@ -268,12 +268,12 @@ export const placeOrder = async (customerId: string, address: string) => {
       throw new CustomError("prisma error: could not place order", 400);
     }
     // delete cart products
-    // await prisma.cart.update({
-    //   where: { customerId },
-    //   data: {
-    //     products: [],
-    //   },
-    // });
+    await prisma.cart.update({
+      where: { customerId },
+      data: {
+        products: [],
+      },
+    });
 
     //paystack
     try {
@@ -303,6 +303,7 @@ export const placeOrder = async (customerId: string, address: string) => {
           502
         );
       }
+      //create payment and connect to order
       await prisma.payment.create({
         data: {
           ref: response.data.data.reference,
@@ -317,8 +318,46 @@ export const placeOrder = async (customerId: string, address: string) => {
     } catch (err: any) {
       throw new CustomError(err.message, err.statusCode);
     }
+  } catch (err: any) {
+    throw new CustomError(err.message, err.statusCode);
+  }
+};
 
-    // return order;
+//update payment status
+export const updatePayment = async (event: any) => {
+  try {
+    const paymentReference = event.data.reference;
+    const paymentMethod = event.data.authorization.channel;
+    const amountPaid = event.data.amount / 100;
+    const chargeStatus = event.event;
+    //check if payment was charged successfully
+    if (chargeStatus === "charge.failed") {
+      //update payment status
+      await prisma.payment.update({
+        where: {
+          ref: paymentReference,
+        },
+        data: {
+          status: "failed",
+          method: paymentMethod,
+        },
+      });
+    }
+    if (chargeStatus !== "charge.success") {
+      //send a 402 status code so paystack try to keep verifying payment
+      throw new CustomError(event.event, 402);
+    }
+    //update payment status
+    await prisma.payment.update({
+      where: {
+        ref: paymentReference,
+      },
+      data: {
+        status: "successful",
+        method: paymentMethod,
+        amountPaid,
+      },
+    });
   } catch (err: any) {
     throw new CustomError(err.message, err.statusCode);
   }

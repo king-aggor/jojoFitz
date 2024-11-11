@@ -15,5 +15,7 @@ router.get("/cart", customerController.getCartItems);
 router.delete("/cart", customerController.removeCartItem);
 //ploace order
 router.post("/order", customerController.placeOrder);
+//webhook
+router.post("/webhook", customerController.webhook);
 
 export default router;
