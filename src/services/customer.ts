@@ -362,3 +362,28 @@ export const updatePayment = async (event: any) => {
     throw new CustomError(err.message, err.statusCode);
   }
 };
+
+//get orders by customer id
+export const orders = async (customerId: string) => {
+  try {
+    const orders = await prisma.order.findMany({
+      where: { customerId },
+      select: {
+        id: true,
+        status: true,
+        address: true,
+        totalAmount: true,
+        orderItems: true,
+        payment: {
+          select: {
+            status: true,
+            method: true,
+          },
+        },
+      },
+    });
+    return orders;
+  } catch (err: any) {
+    throw new CustomError(err.message, err.statusCode);
+  }
+};

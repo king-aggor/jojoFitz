@@ -155,8 +155,7 @@ export const placeOrder = async (
       id: string;
       user: string;
     } = await authorization.customer(authToken);
-    const customerId = customerData.id;
-    // const customerId = "hr3riy633yeh";
+    const customerId: string = customerData.id;
     await dataValidation.placeOrder(address);
     const paymentInitializationDetails = await customerService.placeOrder(
       customerId,
@@ -165,6 +164,33 @@ export const placeOrder = async (
     res.status(200).json({
       message: "Order placed successfully",
       paymentInitializationDetails,
+    });
+  } catch (err: any) {
+    next({
+      status: err.statusCode,
+      message: err.message,
+    });
+  }
+};
+
+//get orders
+export const orders = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authToken = req.headers.authorization as string;
+  try {
+    await dataValidation.token(authToken);
+    const customerData: {
+      id: string;
+      user: string;
+    } = await authorization.customer(authToken);
+    const customerId: string = customerData.id;
+    const orders = await customerService.orders(customerId);
+    res.status(200).json({
+      message: "orders",
+      orders,
     });
   } catch (err: any) {
     next({
