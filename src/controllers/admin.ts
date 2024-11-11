@@ -190,3 +190,28 @@ export const getOrders = async (
     });
   }
 };
+
+//get specific order
+export const getOrder = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authToken = req.headers.authorization as string;
+  const orderId: string = req.params.orderId;
+  try {
+    await datavalidation.token(authToken);
+    await authorization.admin(authToken);
+    await datavalidation.id(orderId);
+    const order = await adminService.order(orderId);
+    res.status(200).json({
+      message: "order fetched successfully",
+      order,
+    });
+  } catch (err: any) {
+    next({
+      status: err.statusCode,
+      message: err.message,
+    });
+  }
+};

@@ -163,8 +163,39 @@ export const deleteProduct = async (id: string) => {
 //get all orders
 export const getOrders = async () => {
   try {
-    const orders = await prisma.order.findMany();
+    const orders = await prisma.order.findMany({
+      include: {
+        payment: true,
+        Customer: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
     return orders;
+  } catch (err: any) {
+    throw new CustomError(err.message, err.statusCode);
+  }
+};
+
+//get order by order id
+export const order = async (orderId: string) => {
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        payment: true,
+        Customer: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+    return order;
   } catch (err: any) {
     throw new CustomError(err.message, err.statusCode);
   }
