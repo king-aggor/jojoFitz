@@ -387,3 +387,35 @@ export const orders = async (customerId: string) => {
     throw new CustomError(err.message, err.statusCode);
   }
 };
+
+//get order by id
+export const getOrder = async (orderData: {
+  customerId: string;
+  orderId: string;
+}) => {
+  const { customerId, orderId } = orderData;
+  try {
+    const order = await prisma.order.findUnique({
+      where: {
+        id: orderId,
+        customerId,
+      },
+      select: {
+        id: true,
+        status: true,
+        address: true,
+        totalAmount: true,
+        orderItems: true,
+        payment: {
+          select: {
+            status: true,
+            method: true,
+          },
+        },
+      },
+    });
+    return order;
+  } catch (err: any) {
+    throw new CustomError(err.message, err.statusCode);
+  }
+};

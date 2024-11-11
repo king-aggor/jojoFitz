@@ -189,8 +189,38 @@ export const orders = async (
     const customerId: string = customerData.id;
     const orders = await customerService.orders(customerId);
     res.status(200).json({
-      message: "orders",
+      message: "customer orders fetched successfully",
       orders,
+    });
+  } catch (err: any) {
+    next({
+      status: err.statusCode,
+      message: err.message,
+    });
+  }
+};
+
+//get specific order
+export const order = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authToken = req.headers.authorization as string;
+  const orderId: string = req.params.orderId;
+  try {
+    await dataValidation.token(authToken);
+    const customerData: {
+      id: string;
+      user: string;
+    } = await authorization.customer(authToken);
+    await dataValidation.id(orderId);
+    const customerId: string = customerData.id;
+    const orderData = { customerId, orderId };
+    const order = await customerService.getOrder(orderData);
+    res.status(200).json({
+      message: "customer order fetch successfully",
+      order,
     });
   } catch (err: any) {
     next({

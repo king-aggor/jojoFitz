@@ -15,8 +15,10 @@ router.get("/cart", customerController.getCartItems);
 router.delete("/cart", customerController.removeCartItem);
 //place order
 router.post("/order", customerController.placeOrder);
-//get customer orders
+//get all customer orders
 router.get("/orders", customerController.orders);
+//get order by id
+router.get("/order/:orderId", customerController.order);
 //webhook
 router.post("/webhook", customerController.webhook);
 
