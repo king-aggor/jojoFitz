@@ -195,6 +195,10 @@ export const order = async (orderId: string) => {
         },
       },
     });
+    //check if order exist
+    if (!order) {
+      throw new CustomError("Database error: order does not exist", 404);
+    }
     return order;
   } catch (err: any) {
     throw new CustomError(err.message, err.statusCode);
