@@ -217,24 +217,25 @@ export const getOrder = async (
 };
 
 // update order status
-// export const UpdateOrderStatus = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   const authToken = req.headers.authorization as string;
-//   const orderId: string = req.params.orderId;
-//   try {
-//     await datavalidation.token(authToken);
-//     await authorization.admin(authToken);
-//     await datavalidation.id(orderId);
-//     res.status(200).json({
-//       message: "Order updated successfully",
-//     });
-//   } catch (err: any) {
-//     next({
-//       status: err.statusCode,
-//       message: err.message,
-//     });
-//   }
-// };
+export const UpdateOrderStatus = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authToken = req.headers.authorization as string;
+  const orderId: string = req.params.orderId;
+  try {
+    await datavalidation.token(authToken);
+    await authorization.admin(authToken);
+    await datavalidation.id(orderId);
+    const updatedOrder: any = await adminService.updateOrderStatus(orderId);
+    res.status(200).json({
+      message: `Order ${updatedOrder.id} updated to '${updatedOrder.status}' successfully`,
+    });
+  } catch (err: any) {
+    next({
+      status: err.statusCode,
+      message: err.message,
+    });
+  }
+};

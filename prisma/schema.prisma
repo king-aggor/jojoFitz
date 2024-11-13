@@ -99,6 +99,7 @@ model Courier {
 enum orderStatus {
   pending
   processing
+  readyForDispatch
   onRoute
   delivered
   cancelled

@@ -1,7 +1,9 @@
 import prisma from "../util/prisma";
 import CustomError from "../util/error";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { Prisma } from "@prisma/client";
+import axios from "axios";
+
+const paystack_secret_key = process.env.PAYSTACK_SECRET_KEY;
 
 //add category
 export const addCategory = async (categoryData: { name: string }) => {
@@ -219,16 +221,83 @@ export const order = async (orderId: string) => {
 };
 
 //update order status
-// export const updateOrderStatus = async (orderId: string) => {
-//   try {
-//     //find order by id
-//     const order = prisma.order.findUnique({
-//       where: {
-//         id: orderId,
-//       },
-//     });
-//     return order;
-//   } catch (err: any) {
-//     throw new CustomError(err.message, err.statusCode);
-//   }
-// };
+export const updateOrderStatus = async (orderId: string) => {
+  let updatedOrder;
+  try {
+    //find order by id
+    const order = await prisma.order.findUnique({
+      where: {
+        id: orderId,
+        payment: {
+          status: "successful",
+        },
+      },
+    });
+    // if order not found
+    if (!order) {
+      throw new CustomError(
+        "Unprocessable order: order does not exist or order payment status is not successful (order hasn't been paid for)",
+        422
+      );
+    }
+    //verify payment from paystack and udate order status
+    const paymentReference: string | null = order.paymentRef;
+    // const paymentReference: string = "d5bqk94v82";
+    const headers = {
+      Authorization: `Bearer ${paystack_secret_key}`,
+    };
+    const response: any = await axios.get(
+      `https://api.paystack.co/transaction/verify/${paymentReference}`,
+      { headers }
+    );
+    // console.log(response);
+    // if payment wasn't successful and amount paid to paystck isn't equal to order total amount and currency isn't 'GHS'
+    const paystackPaymentStatus: string = response.data.data.status;
+    const paystackAmount: number = response.data.data.amount / 100;
+    const currency: string = response.data.data.currency;
+    const orderTotalAmount: number = order.totalAmount;
+    if (
+      paystackPaymentStatus != "success" &&
+      currency != "GHS" &&
+      paystackAmount == orderTotalAmount
+    ) {
+      //cancel order
+      updatedOrder = await prisma.order.update({
+        where: { id: order.id },
+        data: {
+          status: "cancelled",
+        },
+      });
+    }
+    // update order status (only orders with status as 'pending' and 'processing' can be updated)
+    const orderStatus: string = order.status;
+    //check if order status is either 'pending' or 'processing'
+    if (orderStatus !== "pending" && orderStatus !== "processing") {
+      throw new CustomError(
+        "only orders with status as 'pending' and 'processing' can be updated",
+        422
+      );
+    }
+    if (orderStatus === "pending") {
+      //pending to prcessing
+      updatedOrder = await prisma.order.update({
+        where: { id: order.id },
+        data: {
+          status: "processing",
+        },
+      });
+    }
+    //processing to readyForDispatch
+    if (orderStatus === "processing") {
+      updatedOrder = await prisma.order.update({
+        where: { id: order.id },
+        data: {
+          status: "readyForDispatch",
+        },
+      });
+    }
+    return updatedOrder;
+  } catch (err: any) {
+    throw new CustomError(err.message, err.statusCode);
+  }
+};
