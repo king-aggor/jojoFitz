@@ -160,10 +160,15 @@ export const deleteProduct = async (id: string) => {
   }
 };
 
-//get all orders
+//get all orders that have been pain for
 export const getOrders = async () => {
   try {
     const orders = await prisma.order.findMany({
+      where: {
+        payment: {
+          status: "successful",
+        },
+      },
       include: {
         payment: true,
         Customer: {
@@ -184,7 +189,12 @@ export const getOrders = async () => {
 export const order = async (orderId: string) => {
   try {
     const order = await prisma.order.findUnique({
-      where: { id: orderId },
+      where: {
+        id: orderId,
+        payment: {
+          status: "successful",
+        },
+      },
       include: {
         payment: true,
         Customer: {
@@ -197,10 +207,28 @@ export const order = async (orderId: string) => {
     });
     //check if order exist
     if (!order) {
-      throw new CustomError("Database error: order does not exist", 404);
+      throw new CustomError(
+        "Database error: order does not exist or order payment status is not successful (order hasn't been paid for)",
+        404
+      );
     }
     return order;
   } catch (err: any) {
     throw new CustomError(err.message, err.statusCode);
   }
 };
+
+//update order status
+// export const updateOrderStatus = async (orderId: string) => {
+//   try {
+//     //find order by id
+//     const order = prisma.order.findUnique({
+//       where: {
+//         id: orderId,
+//       },
+//     });
+//     return order;
+//   } catch (err: any) {
+//     throw new CustomError(err.message, err.statusCode);
+//   }
+// };

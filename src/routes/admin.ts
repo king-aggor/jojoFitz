@@ -19,5 +19,7 @@ router.delete("/product", adminController.deleteProduct);
 router.get("/orders", adminController.getOrders);
 // get specific order
 router.get("/order/:orderId", adminController.getOrder);
+//update order status
+// router.patch("/order/:orderId", adminController.UpdateOrderStatus);
 
 export default router;
