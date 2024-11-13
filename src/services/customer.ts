@@ -248,6 +248,11 @@ export const placeOrder = async (customerId: string, address: string) => {
         productIds.push({ id: product.id });
         orderItems.push(item);
         totalAmount += item.quantity * item.price;
+      } else {
+        throw new CustomError(
+          "unprocessed order: order item quantity can not exceed product quantity",
+          422
+        );
       }
     }
     //create order
